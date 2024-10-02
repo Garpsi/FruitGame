@@ -4,15 +4,15 @@ import { WagmiProvider, useAccount } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WalletOptions } from './components/WalletOptions'
 
+import { getLandPlot, getLandPlotContents, getFarmBucks } from './utils/blockchain';
+import { plantTree } from './utils/blockchain';
 import { Account } from './utils/account.tsx';
 import { config } from './config.ts';
 
 import Nav from './components/Nav';
 import TreeDisplay from './components/TreeDisplay';
-import MenuMiddle from './components/MenuMiddle';
 import TreeInfo from './components/TreeInfo';
-
-
+// import MenuMiddle from './components/MenuMiddle';
 
 function App() {
   const queryClient = new QueryClient()
@@ -23,8 +23,38 @@ function App() {
   const [showUnselect, setShowUnselect] = useState(false);
   const [showTreeInfo, setShowTreeInfo] = useState(false);
   const [selectedTree, setSelectedTree] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleTileClick = (index) => {
+  // const fetchUserData = async (userAddress) => {
+  //   try {
+  //     setIsLoading(true);  // Set loading state
+  //     // Fetch user Farm Bucks
+  //     const bucks = await getFarmBucks(userAddress);
+  //     getFarmBucks(bucks);
+
+  //     // Fetch land plots and contents
+  //     const updatedLand = [...allLand];
+  //     for (let i = 0; i < updatedLand.length; i++) {
+  //       const landDetails = await getLandPlot(userAddress, i);
+  //       const landContents = await getLandPlotContents(userAddress, i);
+        
+  //       // Update the land array with fetched details
+  //       updatedLand[i] = {
+  //         plantType: landDetails.plantType,
+  //         stage: landDetails.stage,
+  //         totalFB: landContents.totalFB,
+  //         lastClaim: landContents.lastClaim
+  //       };
+  //     }
+  //     setAllLand(updatedLand);
+  //   } catch (error) {
+  //     console.error("Error fetching user data:", error);
+  //   } finally {
+  //     setIsLoading(false);  // Stop loading once data is fetched
+  //   }
+  // };
+
+  const handleTileClick = async (index) => {
     // Selecting a tile and allowing the user to plant a tree on that tile
     setTileSelect(index);
     setSelection(1);  // Allow tree planting
@@ -40,7 +70,7 @@ function App() {
     }
   };
 
-  const unselectTile = () => {
+  const resetSelection  = () => {
     setSelection(0);
     setTileSelect(null);
     setShowUnselect(false);
@@ -54,18 +84,24 @@ function App() {
   const handleTreePurchase = async (treeId) => {
     if (selection === 1 && tileSelect !== null) {
       // Perform the tree planting action here, like interacting with the smart contract
+
+      try {
+        await plantTree(treeId, tileSelect);  // Call plantTree function
+        const updatedLand = [...allLand];
+        updatedLand[tileSelect] = { plantType: treeId, stage: 1 };
+        setAllLand(updatedLand);  // Update the tree display
+        resetSelection()
+      } catch (error) {
+        console.error("Error purchasing tree:", error);
+      }
+
       console.log(`Planting tree ${treeId} on tile ${tileSelect}`);
 
       // Simulate a tree being planted by updating the allLand array
       const updatedLand = [...allLand];
       updatedLand[tileSelect] = { plantType: treeId, stage: 1 }; // Assuming the tree starts at stage 1
       setAllLand(updatedLand);
-
-      // Reset selection and tile after purchase
-      setSelection(0);
-      setTileSelect(null);
-      setShowUnselect(false);
-      setShowTreeInfo(false);
+      resetSelection();
     }
   };
 
@@ -74,18 +110,12 @@ function App() {
     const updatedLand = [...allLand];
     updatedLand[tileSelect] = { plantType: 0, stage: 0 };  // Remove tree from plot
     setAllLand(updatedLand);
-    unselectTile();  // Reset selection after removing tree
+    resetSelection();  // Reset selection after removing tree
   };
 
   function ConnectWallet() {
     const { isConnected } = useAccount()
 
-    // useEffect(() => {
-    //   if (isConnected) {
-    //     // Logic to load land and trees after connecting the wallet
-    //     loadLandAndTrees();
-    //   }
-    // }, [isConnected]);
 
     if (isConnected) {
       // const selectedTile = tileSelect !== null ? allLand[tileSelect] : null;
@@ -106,7 +136,7 @@ function App() {
             )} */}
             {showUnselect && (
               <div className="unselect">
-                <button className="unselect__btn" onClick={unselectTile}>Unselect</button>
+                <button className="unselect__btn" onClick={resetSelection}>Unselect</button>
               </div>
             )}
             <Account />

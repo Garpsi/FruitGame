@@ -1,0 +1,42 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\garps\\OneDrive\\Desktop\\thechain\\fruitgame-react\\contracts\\TreeFarm(1).sol": {
+      "lastModificationDate": 1727734099566,
+      "contentHash": "d8ff5eb071191ea6be922401b562c426",
+      "sourceName": "contracts/TreeFarm(1).sol",
+      "solcConfig": {
+        "version": "0.8.10",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.7.0 <0.9.0"
+      ],
+      "artifacts": [
+        "Auth",
+        "IERC20",
+        "TreeFarm"
+      ]
+    }
+  }
+}
