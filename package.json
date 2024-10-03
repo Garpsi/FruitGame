@@ -45,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^0.15.6",
     "hardhat": "^2.22.12"
   }
 }
